@@ -1,0 +1,7 @@
+D:\ChkSum\ChkSum\bin\Release\ChkSum.exe.config
+D:\ChkSum\ChkSum\bin\Release\ChkSum.exe
+D:\ChkSum\ChkSum\bin\Release\ChkSum.pdb
+D:\ChkSum\ChkSum\obj\Release\ChkSum.csprojAssemblyReference.cache
+D:\ChkSum\ChkSum\obj\Release\ChkSum.csproj.CoreCompileInputs.cache
+D:\ChkSum\ChkSum\obj\Release\ChkSum.exe
+D:\ChkSum\ChkSum\obj\Release\ChkSum.pdb
