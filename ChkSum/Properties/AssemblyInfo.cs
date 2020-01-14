@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ChkSum")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Hex 파일의 Check Sum을 계산해주는 Program")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("LG Electronics")]
 [assembly: AssemblyProduct("ChkSum")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCopyright("Copyright © Yonggyung Bae 2020")]
+[assembly: AssemblyTrademark("ChkSum")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
