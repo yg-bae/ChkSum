@@ -20,38 +20,72 @@ namespace ChkSum
         [DllImport("user32.dll")]
         internal static extern bool SetClipboardData(uint uFormat, IntPtr data);
 
+        enum MICOM
+        {
+            T470,
+            T383,
+            T370,
+            T60,            
+        };
+
         static void Main(string[] args)
         {
-            if (args.Length == 0) Console.WriteLine("Input the path to calculate check sum.");
+            Dictionary<MICOM, int> romSizes = new Dictionary<MICOM, int>()
+            {
+                [MICOM.T470] = 1024 * 384,
+                [MICOM.T383] = 1024 * 256,
+                [MICOM.T370] = 1024 * 256,
+                [MICOM.T60] = 1024 * 60,
+            };
+#if DEBUG
+            string filePath = @"D:\ChkSum\ChkSum\0x301F.hex";
+#else
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Check Sum을 계산할 파일 경로를 입력하세요.");
+                Console.WriteLine("ex) C:\\> ChkSum.exe \"C:\\TestPJT\\Test.hex\"");
+                Console.ReadKey();
+                return;
+            }
+
+            string filePath = args[0];
+#endif
+            if (File.Exists(filePath))
+            {
+                Dictionary<MICOM, int> chkSum = new Dictionary<MICOM, int>();
+                Dictionary<MICOM, string> chkSumStr = new Dictionary<MICOM, string>();
+                string hexFile = System.IO.File.ReadAllText(filePath);
+
+                Console.WriteLine("\n▶ File :");
+                Console.WriteLine("{0}\n", filePath);
+                Console.WriteLine("\n▶ ChkSum");
+
+                foreach (MICOM micom in Enum.GetValues(typeof(MICOM)))
+                {
+                    chkSum[micom] = IntelCheckSUM(hexFile, romSizes[micom]);    // ex) 0x12345678
+                    string chkSumStrInv = BitConverter.ToString(BitConverter.GetBytes(chkSum[micom])).Replace("-", "");    // ex) 7856452301
+                    chkSumStr[micom] = string.Concat("0x", chkSumStrInv.Substring(2, 2), chkSumStrInv.Substring(0, 2)); // ex) 0x5678
+                    Console.WriteLine("\n {0:D}) {1} : {2}", micom, micom, chkSumStr[micom]);
+                }
+
+                Console.Write("\nClipboard로 복사할 MICOM의 번호({0}~{1})를 입력해 주세요 : ", 0, romSizes.Count - 1);
+
+                int selectedMicom = Console.Read() - '0';
+                MICOM idx = MICOM.T470;
+
+                if ((0 <= selectedMicom) && (selectedMicom <= (romSizes.Count - 1)))
+                {
+                    idx = (MICOM)selectedMicom;
+                }
+                CopyToClipboard(chkSumStr[idx]);
+                Console.WriteLine("\nClipboard로 복사되었습니다. Ctrl+V 하시면 됩니다.");
+                Console.WriteLine("▶ {0}", chkSumStr[idx]);
+            }
             else
             {
-                string filePath = args[0];
-
-                if (File.Exists(filePath))
-                {
-                    string hexFile = System.IO.File.ReadAllText(filePath);
-                    int chkSum = IntelCheckSUM(hexFile, 384 * 1024);    // ex) 0x12345678
-                    string chkSumStrInv = BitConverter.ToString(BitConverter.GetBytes(chkSum)).Replace("-", "");    // ex) 7856452301
-                    string chkSumStr = string.Concat("0x", chkSumStrInv.Substring(2, 2), chkSumStrInv.Substring(0, 2)); // ex) 0x5678
-
-                    // Copy to Clipboard
-                    OpenClipboard(IntPtr.Zero);
-                    var ptr = Marshal.StringToHGlobalUni(chkSumStr);
-                    SetClipboardData(13, ptr);
-                    CloseClipboard();
-                    Marshal.FreeHGlobal(ptr);
-
-
-                    Console.WriteLine("\n▶ File :");
-                    Console.WriteLine("{0}", filePath);
-                    Console.WriteLine("\n▶ ChkSum : {0}", chkSumStr);
-                }
-                else
-                {
-                    Console.WriteLine("File does not exist.");
-                }
+                Console.WriteLine("\n파일이 존재하지 않습니다.");
             }
-            System.Console.ReadKey();
+            Console.ReadKey();
         }
 
         static int IntelCheckSUM(string file_buf, int RomLength)
@@ -102,6 +136,16 @@ namespace ChkSum
         {
             string hex = string.Concat(ch1, ch2);
             return Convert.ToInt32(hex, 16);
+        }
+
+        private static void CopyToClipboard(string str)
+        {
+            // Copy to Clipboard
+            OpenClipboard(IntPtr.Zero);
+            var ptr = Marshal.StringToHGlobalUni(str);
+            SetClipboardData(13, ptr);
+            CloseClipboard();
+            Marshal.FreeHGlobal(ptr);
         }
     }
 }
