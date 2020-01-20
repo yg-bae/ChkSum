@@ -5,21 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 namespace ChkSum
 {
     class Program
     {
-        [DllImport("user32.dll")]
-        internal static extern bool OpenClipboard(IntPtr hWndNewOwner);
-
-        [DllImport("user32.dll")]
-        internal static extern bool CloseClipboard();
-
-        [DllImport("user32.dll")]
-        internal static extern bool SetClipboardData(uint uFormat, IntPtr data);
-
         enum MICOM
         {
             T470,
@@ -27,6 +19,11 @@ namespace ChkSum
             T370,
             T60,            
         };
+
+        /* [STAThread]
+         * using System.Windows.Forms;에 있는 Clipboard class를 사용하기 위해 있어야 함.
+         * Ref : https://stackoverflow.com/questions/3546016/how-to-copy-data-to-clipboard-in-c-sharp/34077334#34077334 */
+        [STAThread]
 
         static void Main(string[] args)
         {
@@ -77,7 +74,7 @@ namespace ChkSum
                 {
                     idx = (MICOM)selectedMicom;
                 }
-                CopyToClipboard(chkSumStr[idx]);
+                Clipboard.SetText(chkSumStr[idx]);
                 Console.WriteLine("\nClipboard로 복사되었습니다. Ctrl+V 하시면 됩니다.");
                 Console.WriteLine("▶ {0}", chkSumStr[idx]);
             }
@@ -136,16 +133,6 @@ namespace ChkSum
         {
             string hex = string.Concat(ch1, ch2);
             return Convert.ToInt32(hex, 16);
-        }
-
-        private static void CopyToClipboard(string str)
-        {
-            // Copy to Clipboard
-            OpenClipboard(IntPtr.Zero);
-            var ptr = Marshal.StringToHGlobalUni(str);
-            SetClipboardData(13, ptr);
-            CloseClipboard();
-            Marshal.FreeHGlobal(ptr);
         }
     }
 }
