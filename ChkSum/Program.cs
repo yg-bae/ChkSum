@@ -12,14 +12,20 @@ namespace ChkSum
 {
     class Program
     {
-        enum MICOM
+        enum MicomIdx
         {
             T470,
             T383,
             T370,
-            T60,            
+            T60,
         };
 
+        private struct MicomInfo
+        {
+            public int romSize;
+            public ConsoleColor color;
+        };
+        
         /* [STAThread]
          * using System.Windows.Forms;에 있는 Clipboard class를 사용하기 위해 있어야 함.
          * Ref : https://stackoverflow.com/questions/3546016/how-to-copy-data-to-clipboard-in-c-sharp/34077334#34077334 */
@@ -27,12 +33,12 @@ namespace ChkSum
 
         static void Main(string[] args)
         {
-            Dictionary<MICOM, int> romSizes = new Dictionary<MICOM, int>()
+            Dictionary<MicomIdx, MicomInfo> micomInfos = new Dictionary<MicomIdx, MicomInfo>()
             {
-                [MICOM.T470] = 1024 * 384,
-                [MICOM.T383] = 1024 * 256,
-                [MICOM.T370] = 1024 * 256,
-                [MICOM.T60] = 1024 * 60,
+                [MicomIdx.T470] = new MicomInfo { romSize = 1024 * 384, color = ConsoleColor.Red },
+                [MicomIdx.T383] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Blue },
+                [MicomIdx.T370] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Gray },
+                [MicomIdx.T60] = new MicomInfo { romSize = 1024 * 60, color = ConsoleColor.Gray },
             };
 #if DEBUG
             string filePath = @"D:\ChkSum\ChkSum\0x301F.hex";
@@ -49,33 +55,35 @@ namespace ChkSum
 #endif
             if (File.Exists(filePath))
             {
-                Dictionary<MICOM, int> chkSum = new Dictionary<MICOM, int>();
-                Dictionary<MICOM, string> chkSumStr = new Dictionary<MICOM, string>();
+                Dictionary<MicomIdx, int> chkSum = new Dictionary<MicomIdx, int>();
+                Dictionary<MicomIdx, string> chkSumStr = new Dictionary<MicomIdx, string>();
                 string hexFile = System.IO.File.ReadAllText(filePath);
 
                 Console.WriteLine("\n▶ File :");
                 Console.WriteLine("{0}\n", filePath);
                 Console.WriteLine("\n▶ ChkSum");
 
-                foreach (MICOM micom in Enum.GetValues(typeof(MICOM)))
+                foreach (MicomIdx micom in Enum.GetValues(typeof(MicomIdx)))
                 {
-                    chkSum[micom] = IntelCheckSUM(hexFile, romSizes[micom]);    // ex) 0x12345678
+                    chkSum[micom] = IntelCheckSUM(hexFile, micomInfos[micom].romSize);    // ex) 0x12345678
                     string chkSumStrInv = BitConverter.ToString(BitConverter.GetBytes(chkSum[micom])).Replace("-", "");    // ex) 7856452301
                     chkSumStr[micom] = string.Concat("0x", chkSumStrInv.Substring(2, 2), chkSumStrInv.Substring(0, 2)); // ex) 0x5678
+                    Console.ForegroundColor = micomInfos[micom].color;
                     Console.WriteLine("\n {0:D}) {1} : {2}", micom, micom, chkSumStr[micom]);
                 }
 
-                Console.Write("\nClipboard로 복사할 MICOM의 번호({0}~{1})를 입력해 주세요 : ", 0, romSizes.Count - 1);
+                Console.Write("\nClipboard로 복사할 MICOM의 번호({0}~{1})를 입력해 주세요 : ", 0, micomInfos.Count - 1);
 
                 int selectedMicom = Console.Read() - '0';
-                MICOM idx = MICOM.T470;
+                MicomIdx idx = MicomIdx.T470;
 
-                if ((0 <= selectedMicom) && (selectedMicom <= (romSizes.Count - 1)))
+                if ((0 <= selectedMicom) && (selectedMicom <= (micomInfos.Count - 1)))
                 {
-                    idx = (MICOM)selectedMicom;
+                    idx = (MicomIdx)selectedMicom;
                 }
                 Clipboard.SetText(chkSumStr[idx]);
                 Console.WriteLine("\nClipboard로 복사되었습니다. Ctrl+V 하시면 됩니다.");
+                Console.ForegroundColor = micomInfos[idx].color;
                 Console.WriteLine("▶ {0}", chkSumStr[idx]);
             }
             else

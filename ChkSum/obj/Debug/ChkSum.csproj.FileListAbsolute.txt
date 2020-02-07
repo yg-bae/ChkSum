@@ -4,4 +4,3 @@ D:\ChkSum\ChkSum\bin\Debug\ChkSum.pdb
 D:\ChkSum\ChkSum\obj\Debug\ChkSum.csproj.CoreCompileInputs.cache
 D:\ChkSum\ChkSum\obj\Debug\ChkSum.exe
 D:\ChkSum\ChkSum\obj\Debug\ChkSum.pdb
-D:\ChkSum\ChkSum\obj\Debug\ChkSum.csprojAssemblyReference.cache
