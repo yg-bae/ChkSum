@@ -18,12 +18,14 @@ namespace ChkSum
             T383,
             T370,
             T60,
+            A8316,
         };
 
         private struct MicomInfo
         {
             public int romSize;
             public ConsoleColor color;
+            public byte filling;
         };
         
         /* [STAThread]
@@ -35,10 +37,11 @@ namespace ChkSum
         {
             Dictionary<MicomIdx, MicomInfo> micomInfos = new Dictionary<MicomIdx, MicomInfo>()
             {
-                [MicomIdx.T470] = new MicomInfo { romSize = 1024 * 384, color = ConsoleColor.Red },
-                [MicomIdx.T383] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Blue },
-                [MicomIdx.T370] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Gray },
-                [MicomIdx.T60] = new MicomInfo { romSize = 1024 * 60, color = ConsoleColor.Gray },
+                [MicomIdx.T470] = new MicomInfo { romSize = 1024 * 384, color = ConsoleColor.Red, filling = 0xFF },
+                [MicomIdx.T383] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Blue, filling = 0xFF },
+                [MicomIdx.T370] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Gray, filling = 0xFF },
+                [MicomIdx.T60] = new MicomInfo { romSize = 1024 * 60, color = ConsoleColor.Gray, filling = 0xFF },
+                [MicomIdx.A8316] = new MicomInfo { romSize = 1024 * 16, color = ConsoleColor.Green, filling = 0x00 },
             };
 #if DEBUG
             string filePath = @"D:\ChkSum\ChkSum\0x301F.hex";
@@ -65,13 +68,13 @@ namespace ChkSum
 
                 foreach (MicomIdx micom in Enum.GetValues(typeof(MicomIdx)))
                 {
-                    chkSum[micom] = IntelCheckSUM(hexFile, micomInfos[micom].romSize);    // ex) 0x12345678
+                    chkSum[micom] = IntelCheckSUM(hexFile, micomInfos[micom].romSize, micomInfos[micom].filling);    // ex) 0x12345678
                     string chkSumStrInv = BitConverter.ToString(BitConverter.GetBytes(chkSum[micom])).Replace("-", "");    // ex) 7856452301
                     chkSumStr[micom] = string.Concat("0x", chkSumStrInv.Substring(2, 2), chkSumStrInv.Substring(0, 2)); // ex) 0x5678
                     Console.ForegroundColor = micomInfos[micom].color;
                     Console.WriteLine("\n {0:D}) {1} : {2}", micom, micom, chkSumStr[micom]);
                 }
-
+                Console.ForegroundColor = ConsoleColor.Gray;
                 Console.Write("\nClipboard로 복사할 MICOM의 번호({0}~{1})를 입력해 주세요 : ", 0, micomInfos.Count - 1);
 
                 int selectedMicom = Console.Read() - '0';
@@ -93,7 +96,7 @@ namespace ChkSum
             Console.ReadKey();
         }
 
-        static int IntelCheckSUM(string file_buf, int RomLength)
+        static int IntelCheckSUM(string file_buf, int RomLength, byte filling)
         {
             int i = 0;
             int DataCnt = 0;
@@ -133,7 +136,7 @@ namespace ChkSum
 
             }
 
-            chksum += (RomLength - DataCnt) * 0xff;
+            chksum += (RomLength - DataCnt) * filling;
             return chksum;
         }
 
