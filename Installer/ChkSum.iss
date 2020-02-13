@@ -28,6 +28,7 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 ChangesAssociations=yes
+AppCopyright=Copyright (C) Yonggyung Bae 2020
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
