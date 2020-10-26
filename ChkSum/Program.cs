@@ -16,6 +16,7 @@ namespace ChkSum
         {
             T470,
             T383,
+            SiW31100,
             T370,
             T60,
             A8316,
@@ -39,12 +40,14 @@ namespace ChkSum
             {
                 [MicomIdx.T470] = new MicomInfo { romSize = 1024 * 384, color = ConsoleColor.Red, filling = 0xFF },
                 [MicomIdx.T383] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Blue, filling = 0xFF },
+                [MicomIdx.SiW31100] = new MicomInfo { romSize = 1024 * 127, color = ConsoleColor.Green, filling = 0xFF },
                 [MicomIdx.T370] = new MicomInfo { romSize = 1024 * 256, color = ConsoleColor.Gray, filling = 0xFF },
                 [MicomIdx.T60] = new MicomInfo { romSize = 1024 * 60, color = ConsoleColor.Gray, filling = 0xFF },
-                [MicomIdx.A8316] = new MicomInfo { romSize = 1024 * 16, color = ConsoleColor.Green, filling = 0x00 },
+                [MicomIdx.A8316] = new MicomInfo { romSize = 1024 * 16, color = ConsoleColor.Gray, filling = 0x00 },
             };
 #if DEBUG
-            string filePath = @"D:\ChkSum\ChkSum\0x301F.hex";
+            //string filePath = @"D:\ChkSum\ChkSum\0x301F.hex";
+            string filePath = @"D:\05_Programs\Essential\SiW SW31100 eFlashWriter V2.44\201013_SW31100_test.hex";
 #else
             if (args.Length == 0)
             {
